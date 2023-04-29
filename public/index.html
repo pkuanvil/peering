@@ -1,0 +1,29 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+	<meta charset="utf-8">
+	<title>Socket Peering Demo</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<script src="https://cdn.socket.io/4.6.0/socket.io.js"></script>
+	<script src="/app.js" type="module"></script>
+</head>
+
+<body>
+	<p>Socket Peering Demo</p>
+	<label for="uid">uid:</label>
+	<input type="text" id="uid" name="uid" minlength="2" maxlength="16">
+	<label for="target_uid">target_uid:</label>
+	<input type="text" id="target_uid" name="target_uid" minlength="2" maxlength="16">
+	<p/>
+	<label for="message">Message:</label>
+	<input type="text" id="message" name="message">
+	<hr/>
+	<ul id="message_list">
+
+	</ul>
+</body>
+
+</html>
