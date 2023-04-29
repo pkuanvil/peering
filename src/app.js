@@ -1,22 +1,34 @@
 import express from 'express';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
+// eslint-disable-next-line no-unused-vars
+import { Server, Socket } from 'socket.io';
 import path from 'path';
+import nconf from 'nconf';
+
+nconf.file({ file: '../config.json' });
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
-const port = process.env.PORT || 3000;
+const PORT = nconf.get('PORT') || 3000;
 
-server.listen(port, () => {
-	console.log(`Server listening at port ${port}`);
-});
+async function main() {
+	server.listen(PORT, () => {
+		console.log(`Server listening at port ${PORT}`);
+	});
 
-app.use(express.static(path.join('.', '../public')));
+	app.use(express.static(path.join('.', '../public')));
+
+	io.on('connection', onConnection);
+}
 
 const connectedUsers = new Map();
 
-io.on('connection', (socket) => {
+/**
+ * @param {Socket} socket
+ * @returns {void}
+ */
+async function onConnection(socket) {
 	let { uid } = socket.handshake.auth;
 	try {
 		uid = parseInt(uid, 10);
@@ -52,5 +64,7 @@ io.on('connection', (socket) => {
 		connectedUsers.delete(uid);
 		console.log(`Disconnected User, uid=${uid}`);
 	});
-});
+}
+
+main().catch(console.error);
 
