@@ -1,0 +1,15 @@
+node_modules/
+*.sublime-project
+*.sublime-workspace
+.project
+.vagrant
+.DS_Store
+logs/
+.idea/
+.vscode/
+*.ipr
+*.iws
+/build
+.eslintrc
+test/files
+*.min.js
