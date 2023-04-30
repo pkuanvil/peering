@@ -22,6 +22,9 @@ async function main() {
 	io.on('connection', onConnection);
 }
 
+/**
+ * @type {Map<number, string>}
+ */
 const connectedUsers = new Map();
 
 /**
@@ -39,14 +42,14 @@ async function onConnection(socket) {
 	console.log(`Connected User, uid=${uid}`);
 
 	socket.on('send_message', (data) => {
-		let { target_uid, message } = data;
+		let { target_uid } = data;
 		try {
 			target_uid = parseInt(target_uid, 10);
 		} catch (e) {
 			return;
 		}
-		console.log(`User message: uid=${uid}, target_uid=${target_uid}`);
-		console.log(`message: ${message}`);
+		console.log(`User message: uid=${uid}, target_uid=${target_uid}. Data:`);
+		console.log(data);
 
 		const target_sid = connectedUsers.get(target_uid);
 		if (!target_sid) {
@@ -55,8 +58,8 @@ async function onConnection(socket) {
 			return;
 		}
 		io.to(target_sid).emit('recv_message', {
+			...data,
 			from_uid: uid,
-			message,
 		});
 	});
 
