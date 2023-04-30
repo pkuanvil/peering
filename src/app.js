@@ -39,13 +39,13 @@ async function sendWithTimeout(target_uid, event_name, data) {
 				await new Promise((r) => { setTimeout(r, timeout); });
 				target_sid = connectedUsers.get(target_uid);
 				if (!target_sid) {
-					console.log(`Target ${target_uid} is offline`);
 					throw new Error(`Target ${target_uid} is offline`);
 				}
 			}
 			// eslint-disable-next-line no-await-in-loop
 			return await io.timeout(timeout).to(target_sid).emitWithAck(event_name, data);
 		} catch (e) {
+			console.log(e);
 			err = e;
 		}
 	}
@@ -73,7 +73,13 @@ async function onConnection(socket) {
 		let { target_uid } = data;
 		try {
 			target_uid = parseInt(target_uid, 10);
+			if (isNaN(target_uid)) {
+				throw new Error('Invalid target_uid');
+			}
 		} catch (e) {
+			if (callback) {
+				callback(e.toString());
+			}
 			return;
 		}
 		console.log(`User message: uid=${uid}, target_uid=${target_uid}. Data:`);
