@@ -52,18 +52,37 @@ messageEl.value = message;
 messageEl.addEventListener('change', (event) => {
 	message = event.target.value;
 	localStorage.setItem('message', message);
-	socket.emit('send_message', {
+	socket.timeout(7500).emitWithAck('send_message', {
 		target_uid,
 		message,
-	});
-	append({
-		type: 'send_message',
-		target_uid,
-		message,
+	}).then((response) => {
+		console.log(response);
+		if (response.startsWith('ack_server')) {
+			append({
+				type: 'send_message',
+				target_uid,
+				message,
+			});
+		} else {
+			append({
+				type: 'error',
+				target_uid,
+				message: response,
+			});
+		}
+	}).catch((e) => {
+		append({
+			type: 'error',
+			target_uid,
+			message: e.toString(),
+		});
 	});
 });
 
-socket.on('recv_message', (data) => {
+socket.on('recv_message', (data, callback) => {
+	if (callback) {
+		callback('ack_client');
+	}
 	append({
 		type: 'recv_message',
 		...data,
