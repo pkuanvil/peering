@@ -2,7 +2,7 @@
 	"name": "@pkuanvil/peering",
 	"license": "GPL-3.0",
 	"description": "Socket Peering",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"type": "module",
 	"dependencies": {
 		"express": "^4.17.1",
