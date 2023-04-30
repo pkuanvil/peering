@@ -60,8 +60,11 @@ async function onConnection(socket) {
 	let { uid } = socket.handshake.auth;
 	try {
 		uid = parseInt(uid, 10);
+		if (isNaN(uid)) {
+			throw new Error('Invalid uid');
+		}
 	} catch {
-		socket.disconnect();
+		return socket.disconnect();
 	}
 	connectedUsers.set(uid, socket.id);
 	console.log(`Connected User, uid=${uid}`);
