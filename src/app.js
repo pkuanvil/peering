@@ -30,13 +30,14 @@ const connectedUsers = new Map();
 // This currently makes event data out of order during retry
 async function sendWithTimeout(target_uid, event_name, data) {
 	const { try_count = 5, timeout = 1500 } = data;
+	const offline_timeout = data.offline_timeout || data.timeout || 500;
 	let err;
 	for (let i = 0; i < try_count; i++) {
 		try {
 			let target_sid = connectedUsers.get(target_uid);
 			if (!target_sid) {
 				// eslint-disable-next-line no-await-in-loop
-				await new Promise((r) => { setTimeout(r, timeout); });
+				await new Promise((r) => { setTimeout(r, offline_timeout); });
 				target_sid = connectedUsers.get(target_uid);
 				if (!target_sid) {
 					throw new Error(`Target ${target_uid} is offline`);
