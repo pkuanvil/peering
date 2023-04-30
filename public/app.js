@@ -1,12 +1,12 @@
 'use strict';
 
-let uid = localStorage.getItem('uid') || '1';
-let target_uid = localStorage.getItem('target_uid') || '2';
-let message = localStorage.getItem('message') || `Hello from uid=${uid}, target_uid=${target_uid}`;
+const uid_init = localStorage.getItem('uid') || '1';
+const target_uid_init = localStorage.getItem('target_uid') || '2';
+const message_init = localStorage.getItem('message') || `Hello from uid=${uid_init}, target_uid=${target_uid_init}`;
 
 const socket = io({
 	auth: {
-		uid,
+		uid: uid_init,
 	},
 });
 
@@ -21,9 +21,9 @@ function append(data) {
 }
 
 const uidEl = document.getElementById('uid');
-uidEl.value = uid;
+uidEl.value = uid_init;
 uidEl.addEventListener('change', (event) => {
-	uid = event.target.value;
+	const uid = event.target.value;
 	try {
 		parseInt(uid, 10);
 	} catch (e) {
@@ -35,11 +35,11 @@ uidEl.addEventListener('change', (event) => {
 });
 
 const target_uidEl = document.getElementById('target_uid');
-target_uidEl.value = target_uid;
+target_uidEl.value = target_uid_init;
 target_uidEl.addEventListener('change', (event) => {
-	target_uid = event.target.value;
+	const target_uid = event.target.value;
 	try {
-		parseInt(uid, 10);
+		parseInt(target_uid, 10);
 	} catch (e) {
 		console.log(`Invalid target_uid: ${target_uid}`);
 		return;
@@ -48,9 +48,10 @@ target_uidEl.addEventListener('change', (event) => {
 });
 
 const messageEl = document.getElementById('message');
-messageEl.value = message;
+messageEl.value = message_init;
 messageEl.addEventListener('change', (event) => {
-	message = event.target.value;
+	const message = event.target.value;
+	const target_uid = target_uidEl.value;
 	localStorage.setItem('message', message);
 	socket.timeout(7500).emitWithAck('send_message', {
 		target_uid,
