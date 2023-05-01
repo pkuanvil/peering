@@ -1,7 +1,21 @@
 'use strict';
 
-const uid_init = localStorage.getItem('uid') || '1';
-const target_uid_init = localStorage.getItem('target_uid') || '2';
+function generateUID() {
+	const array = new Uint32Array(2);
+	crypto.getRandomValues(array);
+	const lower = array[0];
+	// eslint-disable-next-line no-bitwise
+	const upper = array[1] & ((2 ** 21) - 1);
+	return (upper * (2 ** 32)) + lower;
+}
+
+let uid_init = localStorage.getItem('uid');
+if (!uid_init) {
+	uid_init = generateUID();
+	localStorage.setItem('uid', uid_init);
+}
+
+const target_uid_init = localStorage.getItem('target_uid') || uid_init;
 const message_init = localStorage.getItem('message') || `Hello from uid=${uid_init}, target_uid=${target_uid_init}`;
 
 const socket = io({
