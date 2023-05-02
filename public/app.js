@@ -39,7 +39,9 @@ uidEl.value = uid_init;
 uidEl.addEventListener('change', (event) => {
 	const uid = event.target.value;
 	try {
-		parseInt(uid, 10);
+		if (isNaN(parseInt(uid, 10))) {
+			throw new Error('Invalid uid');
+		}
 	} catch (e) {
 		append({
 			type: 'error',
@@ -55,7 +57,9 @@ target_uidEl.value = target_uid_init;
 target_uidEl.addEventListener('change', (event) => {
 	const target_uid = event.target.value;
 	try {
-		parseInt(target_uid, 10);
+		if (isNaN(parseInt(target_uid, 10))) {
+			throw new Error('Invalid uid');
+		}
 	} catch (e) {
 		append({
 			type: 'error',
