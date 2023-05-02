@@ -9,6 +9,14 @@ function generateUID() {
 	return (upper * (2 ** 32)) + lower;
 }
 
+function parseUID(uid) {
+	const result = parseInt(uid, 10);
+	if (isNaN(result) || String(result) !== String(uid)) {
+		throw new Error('Invalid uid');
+	}
+	return result;
+}
+
 let uid_init = localStorage.getItem('uid');
 if (!uid_init) {
 	uid_init = generateUID();
@@ -37,11 +45,9 @@ function append(data) {
 const uidEl = document.getElementById('uid');
 uidEl.value = uid_init;
 uidEl.addEventListener('change', (event) => {
-	const uid = event.target.value;
+	let uid = event.target.value;
 	try {
-		if (isNaN(parseInt(uid, 10))) {
-			throw new Error('Invalid uid');
-		}
+		uid = parseUID(uid);
 	} catch (e) {
 		append({
 			type: 'error',
@@ -55,11 +61,9 @@ uidEl.addEventListener('change', (event) => {
 const target_uidEl = document.getElementById('target_uid');
 target_uidEl.value = target_uid_init;
 target_uidEl.addEventListener('change', (event) => {
-	const target_uid = event.target.value;
+	let target_uid = event.target.value;
 	try {
-		if (isNaN(parseInt(target_uid, 10))) {
-			throw new Error('Invalid uid');
-		}
+		target_uid = parseUID(target_uid);
 	} catch (e) {
 		append({
 			type: 'error',

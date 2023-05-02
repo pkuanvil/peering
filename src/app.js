@@ -52,6 +52,14 @@ async function sendWithTimeout(target_uid, event_name, data) {
 	throw err;
 }
 
+function parseUID(uid) {
+	const result = parseInt(uid, 10);
+	if (isNaN(result) || String(result) !== String(uid)) {
+		throw new Error('Invalid uid');
+	}
+	return result;
+}
+
 /**
  * @param {Socket} socket
  * @returns {void}
@@ -59,10 +67,7 @@ async function sendWithTimeout(target_uid, event_name, data) {
 async function onConnection(socket) {
 	let { uid } = socket.handshake.auth;
 	try {
-		uid = parseInt(uid, 10);
-		if (isNaN(uid)) {
-			throw new Error('Invalid uid');
-		}
+		uid = parseUID(uid);
 	} catch {
 		return socket.disconnect();
 	}
@@ -71,13 +76,10 @@ async function onConnection(socket) {
 	socket.on('send_message', (data, callback) => {
 		let { target_uid } = data;
 		try {
-			target_uid = parseInt(target_uid, 10);
-			if (isNaN(target_uid)) {
-				throw new Error('Invalid target_uid');
-			}
+			target_uid = parseUID(target_uid);
 		} catch (e) {
 			if (callback) {
-				callback(e.toString());
+				callback('Invalid target_uid');
 			}
 			return;
 		}
