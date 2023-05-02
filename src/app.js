@@ -4,6 +4,9 @@ import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import path from 'path';
 import nconf from 'nconf';
+import mongoose from 'mongoose';
+import room from './room.js';
+import username from './username.js';
 
 nconf.file({ file: '../config.json' });
 
@@ -16,6 +19,11 @@ async function main() {
 	server.listen(PORT, () => {
 		console.log(`Server listening at port ${PORT}`);
 	});
+	await mongoose.connect(nconf.get('MONGO_URL'));
+	await Promise.all([
+		room.init(),
+		username.init(),
+	]);
 
 	app.use(express.static(path.join('.', '../public')));
 
@@ -68,6 +76,9 @@ async function onConnection(socket) {
 	let { uid } = socket.handshake.auth;
 	try {
 		uid = parseUID(uid);
+		if (uid < 0) {
+			throw new Error('Cannot bind to reserved uid');
+		}
 	} catch {
 		return socket.disconnect();
 	}
@@ -83,13 +94,56 @@ async function onConnection(socket) {
 			}
 			return;
 		}
-		sendWithTimeout(target_uid, 'recv_message', data).then(() => {
+		if (target_uid === -1) {
+			data.uid = uid;
+			room.sendRoomMessage(data).then(({ nextMessageId }) => {
+				io.emit('recv_message', {
+					nextMessageId,
+					from_uid: -1,
+				});
+				if (callback) {
+					callback(`ack_server:{nextMessageId:${nextMessageId}}`);
+				}
+			}).catch((e) => {
+				if (callback) {
+					callback(e.toString());
+				}
+			});
+			return;
+		} else if (target_uid < 0) {
+			if (callback) {
+				callback('Nonexistent reserved target_uid');
+			}
+			return;
+		}
+		sendWithTimeout(target_uid, 'recv_message', {
+			...data,
+			from_uid: uid,
+		}).then(() => {
 			if (callback) {
 				callback('ack_server');
 			}
 		}).catch((e) => {
 			if (callback) {
 				callback(e.toString());
+			}
+		});
+	});
+
+	socket.on('get_global_message', (data, callback) => {
+		room.getRoomMessage().then((result) => {
+			if (callback) {
+				callback({
+					success: true,
+					...result,
+				});
+			}
+		}).catch((e) => {
+			if (callback) {
+				callback({
+					success: false,
+					message: e.toString(),
+				});
 			}
 		});
 	});
