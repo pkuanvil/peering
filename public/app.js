@@ -41,11 +41,13 @@ uidEl.addEventListener('change', (event) => {
 	try {
 		parseInt(uid, 10);
 	} catch (e) {
-		console.log(`Invalid uid: ${uid}`);
+		append({
+			type: 'error',
+			message: `Invalid uid: ${uid}`,
+		});
 		return;
 	}
 	localStorage.setItem('uid', uid);
-	console.log(`uid => ${uid}`);
 });
 
 const target_uidEl = document.getElementById('target_uid');
@@ -55,7 +57,10 @@ target_uidEl.addEventListener('change', (event) => {
 	try {
 		parseInt(target_uid, 10);
 	} catch (e) {
-		console.log(`Invalid target_uid: ${target_uid}`);
+		append({
+			type: 'error',
+			message: `Invalid target_uid: ${target_uid}`,
+		});
 		return;
 	}
 	localStorage.setItem('target_uid', target_uid);
@@ -71,7 +76,6 @@ messageEl.addEventListener('change', (event) => {
 		target_uid,
 		message,
 	}).then((response) => {
-		console.log(response);
 		if (response.startsWith('ack_server')) {
 			append({
 				type: 'send_message',

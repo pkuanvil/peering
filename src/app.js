@@ -46,7 +46,6 @@ async function sendWithTimeout(target_uid, event_name, data) {
 			// eslint-disable-next-line no-await-in-loop
 			return await io.timeout(timeout).to(target_sid).emitWithAck(event_name, data);
 		} catch (e) {
-			console.log(e);
 			err = e;
 		}
 	}
@@ -68,7 +67,6 @@ async function onConnection(socket) {
 		return socket.disconnect();
 	}
 	connectedUsers.set(uid, socket.id);
-	console.log(`Connected User, uid=${uid}`);
 
 	socket.on('send_message', (data, callback) => {
 		let { target_uid } = data;
@@ -83,15 +81,10 @@ async function onConnection(socket) {
 			}
 			return;
 		}
-		console.log(`User message: uid=${uid}, target_uid=${target_uid}. Data:`);
-		console.log(data);
-
-		sendWithTimeout(target_uid, 'recv_message', data).then((response) => {
-			console.log(response);
+		sendWithTimeout(target_uid, 'recv_message', data).then(() => {
 			if (callback) {
 				callback('ack_server');
 			}
-			console.log(`User message: uid=${uid}, target_uid=${target_uid} acked`);
 		}).catch((e) => {
 			if (callback) {
 				callback(e.toString());
@@ -101,7 +94,6 @@ async function onConnection(socket) {
 
 	socket.on('disconnect', () => {
 		connectedUsers.delete(uid);
-		console.log(`Disconnected User, uid=${uid}`);
 	});
 }
 
