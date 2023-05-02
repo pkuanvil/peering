@@ -24,7 +24,7 @@ if (!uid_init) {
 }
 
 const target_uid_init = localStorage.getItem('target_uid') || uid_init;
-const message_init = localStorage.getItem('message') || `Hello from time=${new Date().toISOString()}`;
+const message_init = localStorage.getItem('message') || `(Please change this)`;
 
 const socket = io({
 	auth: {
