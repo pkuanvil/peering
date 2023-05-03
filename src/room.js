@@ -44,7 +44,7 @@ async function getRoomMessage() {
 		}
 		return message;
 	});
-	messages.sort(result => result.messageId);
+	messages.sort((a, b) => a.messageId - b.messageId);
 	return {
 		nextMessageId,
 		messages,
