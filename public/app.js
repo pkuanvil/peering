@@ -161,37 +161,45 @@ const messageEl = document.getElementById('message');
 messageEl.value = message_init;
 messageEl.addEventListener('change', (event) => {
 	const message = event.target.value;
+	if (message.trim().length === 0) {
+		return;
+	}
 	const target_uid = target_uidEl.value;
 	localStorage.setItem('message', message);
 	const payload = {
 		target_uid,
 		message,
 	};
-	socket.timeout(7500).emitWithAck('send_message', payload).then((response) => {
-		if (response.startsWith('ack_server')) {
-			if (target_uid === -1) {
+	socket.timeout(7500).emitWithAck('send_message', payload)
+		.then((response) => {
+			if (response.startsWith('ack_server')) {
+				if (target_uid === -1) {
 				// Do nothing
+				} else {
+					append({
+						type: 'send_message',
+						target_uid,
+						message,
+					});
+				}
 			} else {
 				append({
-					type: 'send_message',
+					type: 'error',
 					target_uid,
-					message,
+					message: response,
 				});
 			}
-		} else {
+		})
+		.catch((e) => {
 			append({
 				type: 'error',
 				target_uid,
-				message: response,
+				message: e.toString(),
 			});
-		}
-	}).catch((e) => {
-		append({
-			type: 'error',
-			target_uid,
-			message: e.toString(),
+		})
+		.finally(() => {
+			messageEl.value = '';
 		});
-	});
 });
 
 socket.on('recv_message', (data, callback) => {
